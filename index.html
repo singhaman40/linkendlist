@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parking System (Linked List)</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(to right, #141e30, #243b55);
+    color: white;
+    text-align: center;
+}
+
+.container {
+    background: white;
+    color: black;
+    width: 50%;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+input, button {
+    padding: 8px;
+    margin: 5px;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.car {
+    background: #eee;
+    padding: 10px;
+    margin: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚗 Parking System (Linked List)</h1>
+
+<div class="container">
+
+<input type="text" id="carNumber" placeholder="Enter Car Number"><br>
+
+<button onclick="enterCar()">Enter</button>
+<button onclick="exitCar()">Exit</button>
+
+<div id="message"></div>
+<div id="list"></div>
+
+</div>
+
+<script>
+
+// Node Class
+class Node {
+    constructor(car) {
+        this.car = car;
+        this.next = null;
+    }
+}
+
+// Linked List Class
+class ParkingList {
+    constructor() {
+        this.head = null;
+    }
+
+    // Insert at end
+    insert(car) {
+        let newNode = new Node(car);
+
+        if (!this.head) {
+            this.head = newNode;
+            return;
+        }
+
+        let temp = this.head;
+        while (temp.next) {
+            temp = temp.next;
+        }
+
+        temp.next = newNode;
+    }
+
+    // Delete by car number
+    delete(carNo) {
+        if (!this.head) return null;
+
+        if (this.head.car.number === carNo) {
+            let removed = this.head.car;
+            this.head = this.head.next;
+            return removed;
+        }
+
+        let temp = this.head;
+
+        while (temp.next && temp.next.car.number !== carNo) {
+            temp = temp.next;
+        }
+
+        if (temp.next) {
+            let removed = temp.next.car;
+            temp.next = temp.next.next;
+            return removed;
+        }
+
+        return null;
+    }
+
+    // Traverse list
+    display() {
+        let temp = this.head;
+        let cars = [];
+
+        while (temp) {
+            cars.push(temp.car);
+            temp = temp.next;
+        }
+
+        return cars;
+    }
+}
+
+let parking = new ParkingList();
+
+// ENTER
+function enterCar() {
+    let carNo = document.getElementById("carNumber").value.trim();
+
+    if (carNo === "") {
+        showMessage("Enter car number");
+        return;
+    }
+
+    let car = {
+        number: carNo,
+        entry: new Date()
+    };
+
+    parking.insert(car);
+
+    showMessage("Car Parked");
+    document.getElementById("carNumber").value = "";
+
+    displayCars();
+}
+
+// EXIT
+function exitCar() {
+    let carNo = document.getElementById("carNumber").value.trim();
+
+    if (carNo === "") {
+        showMessage("Enter car number to exit");
+        return;
+    }
+
+    let car = parking.delete(carNo);
+
+    if (!car) {
+        showMessage("Car not found");
+        return;
+    }
+
+    let exitTime = new Date();
+    let duration = Math.floor((exitTime - car.entry) / 1000);
+
+    showMessage(`Car ${car.number} exited | Time: ${duration} sec`);
+
+    document.getElementById("carNumber").value = "";
+
+    displayCars();
+}
+
+// DISPLAY
+function displayCars() {
+    let list = document.getElementById("list");
+    let cars = parking.display();
+
+    if (cars.length === 0) {
+        list.innerHTML = "<p>No Cars Parked</p>";
+        return;
+    }
+
+    let output = "";
+
+    cars.forEach((car, i) => {
+        output += `
+            <div class="car">
+                🚗 ${car.number} <br>
+                Slot: ${i + 1} <br>
+                Entry: ${car.entry.toLocaleTimeString()}
+            </div>
+        `;
+    });
+
+    list.innerHTML = output;
+}
+
+// MESSAGE
+function showMessage(msg) {
+    document.getElementById("message").innerHTML = "<b>" + msg + "</b>";
+}
+
+</script>
+
+</body>
+</html>
